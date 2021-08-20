@@ -2071,9 +2071,21 @@ endif # BOARD_CUSTOM_BOOTIMG_MK
 ifeq ($(USE_RECOVERY_INSTALLER),true)
 ifneq ($(RECOVERY_INSTALLER_PATH),)
 	@echo ----- Making recovery installer for A/B devices ------
-	cp -fr $(RECOVERY_INSTALLER_PATH) $(PRODUCT_OUT)/installer && cp -f $(recovery_uncompressed_ramdisk) $(PRODUCT_OUT)/installer && cd $(PRODUCT_OUT)/installer && zip -qr recovery-installer ./ && cp -f $(PRODUCT_OUT)/installer/recovery-installer.zip $(PRODUCT_OUT) && rm $(PRODUCT_OUT)/installer/recovery-installer.zip && rm $(PRODUCT_OUT)/installer/ramdisk-recovery.cpio
-endif
-endif
+	cp -fr $(RECOVERY_INSTALLER_PATH) $(TWRP_INSTALLER_OUT) && \
+	cp -f $(PRODUCT_OUT)/$(TWRP_INSTALLER_FORMAT_TARGET) $(TWRP_INSTALLER_OUT) && \
+	cd $(TWRP_INSTALLER_OUT) && \
+	zip -qr $(PRODUCT_DEVICE)-recovery-installer ./ && \
+	cp -f $(TWRP_INSTALLER_OUT)/$(PRODUCT_DEVICE)-recovery-installer.zip $(PRODUCT_OUT) && \
+	rm $(TWRP_INSTALLER_OUT)/$(PRODUCT_DEVICE)-recovery-installer.zip && \
+	rm $(TWRP_INSTALLER_OUT)/$(TWRP_INSTALLER_FORMAT_TARGET)
+endif # RECOVERY_INSTALLER_PATH
+TWRP_INSTALLER_OUT := $(PRODUCT_OUT)/installer
+ifeq ($(TWRP_INSTALLER_FORMAT),)
+TWRP_INSTALLER_FORMAT_TARGET := ramdisk-recovery.cpio
+else ifeq ($(TWRP_INSTALLER_FORMAT),image)
+TWRP_INSTALLER_FORMAT_TARGET := recovery.img
+endif # TWRP_INSTALLER_FORMAT
+endif # USE_RECOVERY_INSTALLER
 
 ifdef RECOVERY_RESOURCE_ZIP
 $(RECOVERY_RESOURCE_ZIP): $(INSTALLED_RECOVERYIMAGE_TARGET) | $(ZIPTIME)
